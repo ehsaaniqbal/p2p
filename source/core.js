@@ -213,8 +213,14 @@ document.addEventListener(
       })
       .then(stream => {
         const my_cam = document.getElementById('my-camera');
-        my_cam.srcObject = stream;
-        my_cam.play()
+        if ('srcObject' in my_cam) {
+          my_cam.srcObject = stream;
+          my_cam.play()
+        } else {
+          // Avoid using this in new browsers, as it is going away.
+          video.src = URL.createObjectURL(stream);
+        }
+        
       })
       .catch(err => {
         alert("Cannot get access to your camera and video !");
