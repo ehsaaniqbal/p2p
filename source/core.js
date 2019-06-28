@@ -213,13 +213,17 @@ document.addEventListener(
       })
       .then(stream => {
         const my_cam = document.getElementById('my-camera');
+        my_cam.setAttribute('autoplay', '');
+        my_cam.setAttribute('muted', '');
+        my_cam.setAttribute('playsinline', '');
         if ('srcObject' in my_cam) {
+      
           my_cam.srcObject = stream;
-          my_cam.play()
+          
         } else {
           // Avoid using this in new browsers, as it is going away.
           my_cam.src = URL.createObjectURL(stream);
-          my_cam.play()
+        
         }
         
       })
