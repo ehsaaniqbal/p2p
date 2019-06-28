@@ -105,6 +105,7 @@ document.addEventListener(
 
     const onRecieveStream = (stream, element_id) => {
       const video = document.getElementById(element_id);
+      window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
       video.src = window.URL.createObjectURL(stream);
       window.peer_stream = stream;
     };
