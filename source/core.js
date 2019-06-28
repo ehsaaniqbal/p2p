@@ -1,9 +1,10 @@
+const getUserMedia = require('getusermedia')
 //DOM has mounted
 document.addEventListener(
   "DOMContentLoaded",
   event => {
     let peer_id, username, conn;
-
+    
     const peer = new Peer({
     
       
@@ -230,7 +231,15 @@ document.addEventListener(
     /**
      * Initialize app
      */
-    requestLocalVideo();
+    getUserMedia((err, stream)=>{
+      if(err){
+        alert("Cannot get access to your camera and video !");
+        console.error(err);
+      }else{
+        window.localStream = stream;
+        onReceiveStream(stream, "my-camera");
+      }
+    })
   },
   false
 );
