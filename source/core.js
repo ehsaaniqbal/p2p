@@ -218,7 +218,8 @@ document.addEventListener(
           my_cam.play()
         } else {
           // Avoid using this in new browsers, as it is going away.
-          video.src = URL.createObjectURL(stream);
+          my_cam.src = URL.createObjectURL(stream);
+          my_cam.play()
         }
         
       })
