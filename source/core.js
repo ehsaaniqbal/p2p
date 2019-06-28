@@ -1,13 +1,10 @@
-const getUserMedia = require('getusermedia')
 //DOM has mounted
 document.addEventListener(
   "DOMContentLoaded",
   event => {
     let peer_id, username, conn;
-    
+
     const peer = new Peer({
-    
-      
       debug: 3,
       config: {
         iceservers: [
@@ -96,7 +93,6 @@ document.addEventListener(
       }
     });
 
-    
     /**
      * Handle the providen stream (video and audio) to the desired video element
      *
@@ -106,8 +102,7 @@ document.addEventListener(
 
     const onRecieveStream = (stream, element_id) => {
       const video = document.getElementById(element_id);
-      window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
-      video.src = window.URL.createObjectURL(stream);
+      video.srcObject = stream;
       window.peer_stream = stream;
     };
 
@@ -169,7 +164,6 @@ document.addEventListener(
 
         call.on("stream", function(stream) {
           window.peer_stream = stream;
-
           onReceiveStream(stream, "peer-camera");
         });
       },
@@ -203,43 +197,29 @@ document.addEventListener(
       },
       false
     );
-
-
-    const requestLocalVideo = () => {
-        navigator.getUserMedia = (
-            navigator.getUserMedia ||
-            navigator.webkitGetUserMedia ||
-            navigator.mozGetUserMedia ||
-            navigator.msGetUserMedia
-        );
-
-      navigator.mediaDevices.getUserMedia(
-        {
-          video: true,
-          audio: true
-        }
-      )
-      .then((stream)=>{
-        window.localStream = stream;
-        onReceiveStream(stream, "my-camera");
-      }).catch((err)=>{
-        alert("Cannot get access to your camera and video !");
-        console.error(err);
-      })
-    };
-
     /**
      * Initialize app
      */
-    getUserMedia((err, stream)=>{
-      if(err){
+
+    navigator.getMedia = ( navigator.getUserMedia       ||
+      navigator.webkitGetUserMedia ||
+      navigator.mozGetUserMedia    ||
+      navigator.msGetUserMedia );   
+
+    navigator.mediaDevices
+      .getUserMedia({
+        video: true,
+        audio: true
+      })
+      .then(stream => {
+        const my_cam = document.getElementById('my-camera');
+        my_cam.srcObject = stream;
+        my_cam.play()
+      })
+      .catch(err => {
         alert("Cannot get access to your camera and video !");
         console.error(err);
-      }else{
-        window.localStream = stream;
-        onReceiveStream(stream, "my-camera");
-      }
-    })
+      });
   },
   false
 );
