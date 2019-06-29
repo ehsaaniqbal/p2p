@@ -62,7 +62,7 @@ document.addEventListener(
       document.getElementById("peer-id").className += " hidden";
       document.getElementById("peer_id").value = peer_id;
       document.getElementById("connected_peer").innerHTML =
-        connection.metadata.username;
+        conn.metadata.username;
     });
 
     //handle errors
@@ -73,16 +73,26 @@ document.addEventListener(
 
     //handle call events
     peer.on("call", call => {
-      const acceptCall = confirm(`${connection.metadata.username} is calling!`);
+      const acceptCall = confirm(`${conn.metadata.username} is calling!`);
 
       if (acceptCall) {
+        //connect my_cam
         call.answer(window.localStream);
 
         //recieve data
         call.on("stream", stream => {
-          //global ref. of remote stream
           window.peer_stream = stream;
-          onRecieveStream(stream, "peer-camera");
+          const rem_cam = document.getElementById("peer-camera");
+          rem_cam.setAttribute("autoplay", "");
+          rem_cam.setAttribute("muted", "");
+          rem_cam.setAttribute("playsinline", "");
+
+          if ("srcObject" in rem_cam) {
+            rem_cam.srcObject = stream;
+          } else {
+            //for old browsers
+            rem_cam.src = URL.createObjectURL(stream);
+          }
         });
 
         call.on("close", () => {
@@ -92,19 +102,6 @@ document.addEventListener(
         console.log("call declined!");
       }
     });
-
-    /**
-     * Handle the providen stream (video and audio) to the desired video element
-     *
-     * @param {*} stream
-     * @param {*} element_id
-     */
-
-    const onRecieveStream = (stream, element_id) => {
-      const video = document.getElementById(element_id);
-      video.srcObject = stream;
-      window.peer_stream = stream;
-    };
 
     /**
      * Appends the received and sent message to the listview
@@ -152,7 +149,7 @@ document.addEventListener(
     );
 
     /**
-     *  Request a videocall the other user
+     *  Request a videocall
      */
     document.getElementById("call").addEventListener(
       "click",
@@ -164,7 +161,18 @@ document.addEventListener(
 
         call.on("stream", function(stream) {
           window.peer_stream = stream;
-          onReceiveStream(stream, "peer-camera");
+          window.peer_stream = stream;
+          const rem_cam = document.getElementById("peer-camera");
+          rem_cam.setAttribute("autoplay", "");
+          rem_cam.setAttribute("muted", "");
+          rem_cam.setAttribute("playsinline", "");
+
+          if ("srcObject" in rem_cam) {
+            rem_cam.srcObject = stream;
+          } else {
+            //for old browsers
+            rem_cam.src = URL.createObjectURL(stream);
+          }
         });
       },
       false
@@ -197,14 +205,16 @@ document.addEventListener(
       },
       false
     );
+
     /**
      * Initialize app
      */
 
-    navigator.getMedia = ( navigator.getUserMedia       ||
+    navigator.getMedia =
+      navigator.getUserMedia ||
       navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia    ||
-      navigator.msGetUserMedia );   
+      navigator.mozGetUserMedia ||
+      navigator.msGetUserMedia;
 
     navigator.mediaDevices
       .getUserMedia({
@@ -212,20 +222,19 @@ document.addEventListener(
         audio: true
       })
       .then(stream => {
-        const my_cam = document.getElementById('my-camera');
-        my_cam.setAttribute('autoplay', '');
-        my_cam.setAttribute('muted', '');
-        my_cam.setAttribute('playsinline', '');
-        if ('srcObject' in my_cam) {
-      
+        const my_cam = document.getElementById("my-camera");
+        my_cam.setAttribute("autoplay", "");
+        my_cam.setAttribute("muted", "");
+        my_cam.setAttribute("playsinline", "");
+
+        if ("srcObject" in my_cam) {
           my_cam.srcObject = stream;
-          
+          window.localStream = stream;
         } else {
           // Avoid using this in new browsers, as it is going away.
           my_cam.src = URL.createObjectURL(stream);
-        
+          window.localStream = stream;
         }
-        
       })
       .catch(err => {
         alert("Cannot get access to your camera and video !");
