@@ -1,107 +1,74 @@
 <!DOCTYPE html>
-<html lang="en">
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
 
 <head>
-    <meta charset="UTF-8">
-    <title>p2p_chat</title>
-        <!-- Using some styles Bootswatch CSS from cdn -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.7/cerulean/bootstrap.min.css">
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>p2p</title>
+    <meta name="description" content="A p2p chat application." />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous" />
+    <link rel="stylesheet" href="resources/style.css" />
+    <link href="https://fonts.googleapis.com/css?family=Montserrat&display=swap" rel="stylesheet" />
+
 </head>
 
 <body>
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6 col-lg-6">
-                <!-- 
-                    Display video of the current user
-                    Note: mute your own video, otherwise you'll hear yourself ...
-                 -->
-                <div class="text-center">
-                    <video id="my-camera"  width="300" height="300" autoplay="autoplay" muted="true" class="mx-auto d-block"></video>
-                    <span class="label label-info">You</span>
+    <div class="v-header v-container">
+        <div class="fullscreen-video-wrap">
+            <video id="remote_cam"></video>
+        </div>
+
+        <div id="main" class="header-content container">
+
+            <!--Connect UI-->
+            <div id="connect_form">
+                <h2>Connect <img src="resources/g.gif" width="50" height="50" /></h2>
+                <a class="badge badge-primary" id="my_id">My ID:</a>
+                <p>Enter the ID of the user you want to connect to</p>
+                <div class="form-group">
+                    <input type="text" class="form-control " name="_name" id="_name" placeholder="Your Name" />
                 </div>
+                <div class="form-group">
+                    <input type="text" class="form-control " name="_id" id="_id" placeholder="ID" autocomplete="off"
+                        autocorrect="off" autocapitalize="off" spellcheck="false" />
+                </div>
+                <button class="btn btn-outline-primary btn-lg" id="connect" disabled> GO </button>
             </div>
 
-            <div class="col-md-6 col-lg-6">
-                <!-- Display video of the connected peer -->
-                <div class="text-center">
-                    <video id="peer-camera" width="300" height="300" autoplay="autoplay" class="mx-auto d-block"></video>
-                    <span class="label label-info" id="connected_peer"></span>
-                </div>
+            <!--Once remote user has connected -->
+            <div id="remote_user_has_connected" hidden>
+                <h2 id="remote_username"></h2>
+                <p>User has connected to your session.</p>
+                <button class="btn btn-outline-success btn-lg" id="call">Call</button>
+            </div>
+
+            <!--Chat UI -->
+            <div id="chat" hidden>
+                <h2 id="remote_id"></h2>
+                <p>You have connected to the session successfully. </p>
+                <button class="btn btn-outline-success btn-lg" id="remote_call">Call</button>
+            </div>
+
+            <!-- Call controls-->
+            <div id="call_controls" hidden>
+                <button type="button" class="btn btn-outline-danger" id="end_call">End Call</button>
             </div>
         </div>
 
-        <div class="row">
-            <h1 class="text-center">
-                Videochat Example
-                <br>
-                <small> Share the following ID with the pal that wants to talk with you</small>
-            </h1>
-            <!-- The ID of your current session -->
-            <h4 class="text-center">
-                <span id="peer-id-label"></span>
-            </h4>
-            <div class="col-md-12 col-lg-12">
-                <div class="form-horizontal" id="connection-form">
-                    <fieldset>
-                        <legend>Connection Form</legend>
-                        <div class="form-group">
-                            <label for="name" class="col-lg-2 control-label">Username</label>
-                            <div class="col-lg-10">
-                                <input type="text" class="form-control" name="name" id="name" placeholder="Your random username">
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label for="peer_id" class="col-lg-2 control-label">Peer ID (id of your pal)</label>
-                            <div class="col-lg-10">
-                                <input type="text" class="form-control" name="peer_id" id="peer_id" placeholder="Peer ID" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
-                                
-                                <!-- Show message if someone connected to the client -->
-                                <div id="connected_peer_container" class="hidden">
-                                    An user is already connected to your session. Just provide a name to connect !
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <div class="col-lg-10 col-lg-offset-2">
-                                <button id="connect-to-peer-btn" class="btn btn-primary">Connect to Peer</button>
-                            </div>
-                        </div>
-                    </fieldset>
-                </div>
-            </div>
-            <div class="col-md-12 col-lg-12">
-                <div id="chat" class="hidden">
-                    <div id="messages-container">
-                        <div class="list-group" id="messages"></div>
-                    </div>
-                    <div id="message-container">
-                        <div class="form-group">
-                            <label class="control-label">Live chat</label>
-                            <div class="input-group">
-                                <span class="input-group-btn">
-                                    <button id="call" class="btn btn-info">Call</button>
-                                </span>
-                                <input type="text" class="form-control" name="message" id="message" placeholder="Your messag here ...">
-                                <span class="input-group-btn">
-                                    <button id="send-message" class="btn btn-success">Send Message</button>
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!--Local stream-->
+        <video id="my_cam" autoplay muted></video>
+
     </div>
-    
-    <!-- 
-        Include the Client Side version of peer.js 
-        using a script tag !
-    -->
-    <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
 
-    <!-- Include the scripts that will handle the chat -->
-    <script src="/resources/core.js"></script>
+    <script src="https://unpkg.com/peerjs@1.0.0/dist/peerjs.min.js"></script>
+    <script src="resources/core.js"></script>
 </body>
 
 </html>
